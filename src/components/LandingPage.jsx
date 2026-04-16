@@ -52,7 +52,9 @@ export default function LandingPage({ onLogin }) {
 
   return (
     <div className="onboarding-card glass animate-slide-in" style={{ maxWidth: '400px' }}>
-      <div className="flex-center" style={{ marginBottom: '1.5rem', marginTop: '1rem' }}>
+      <div className="flex-center relative" style={{ marginBottom: '1.5rem', marginTop: '1rem' }}>
+        <span style={{ position: 'absolute', left: '-10px', top: '-20px', fontSize: '1.8rem', animation: 'float 3s infinite ease-in-out' }}>💖</span>
+        <span style={{ position: 'absolute', right: '-10px', top: '5px', fontSize: '1.8rem', animation: 'float 4s infinite ease-in-out', animationDelay: '1s' }}>🧸</span>
         <h1 className="title-glow flex-center gap-2" style={{ fontSize: '2.5rem' }}>
           VibeCheck <Sparkles color="var(--accent-blue)" />
         </h1>

@@ -1,63 +1,57 @@
 import React from 'react';
 
-// Generates fake data for the calendar heatmap
-const generateMockData = () => {
-  const data = [];
-  // 12 months, 31 days max
-  for (let month = 0; month < 12; month++) {
-    for (let day = 0; day < 31; day++) {
-      // randomly skip some to look organic
-      if (Math.random() > 0.85) continue;
-      
-      const vibe = Math.random() * 10;
-      let colorClass = 'day-mid';
-      if (vibe < 5) colorClass = 'day-low';
-      if (vibe >= 8) colorClass = 'day-high';
+export default function Calendar({ currentUser }) {
+  // Real data parsing for the heatmap
+  const checkIns = currentUser?.checkIns || [];
+  
+  // Create a map of date string to score
+  const checkInMap = {};
+  checkIns.forEach(c => {
+    const dString = new Date(c.date).toDateString();
+    checkInMap[dString] = c.score; // Stores the latest score of that day if multiple exist
+  });
 
-      data.push({ month, day, colorClass });
-    }
-  }
-  return data;
-};
-
-export default function Calendar() {
-  const data = generateMockData();
-
-  // Create a 31-column grid representing days, and each cell inside is placed based on its mock data 
-  // (Simplified interpretation of the grid for aesthetic purposes)
+  const totalCells = 31 * 12;
 
   return (
-    <div className="calendar-wrapper glass mt-4">
+    <div className="calendar-wrapper glass-panel" style={{ marginTop: '2rem' }}>
       <div className="calendar-header flex-between">
-        <h3>Friendship Heatmap</h3>
-        <span style={{color: 'var(--text-muted)'}}>Last 12 Months</span>
+        <h3 className="title-glow" style={{ fontSize: '1.4rem' }}>Friendship Heatmap 🔥</h3>
+        <span style={{color: 'var(--text-muted)', fontSize: '0.9rem'}}>Last year</span>
       </div>
       <div className="calendar-grid">
-        {Array.from({ length: 31 * 12 }).map((_, i) => {
-          // Add some mock colors randomly but mostly empty/mid to simulate a github grid
-          const isFilled = Math.random() > 0.4;
+        {Array.from({ length: totalCells }).map((_, i) => {
+          // Calculate logic for days ago (going backwards from today being the last cell)
+          const daysAgo = (totalCells - 1) - i;
+          const d = new Date();
+          d.setDate(d.getDate() - daysAgo);
+          const dString = d.toDateString();
+          
           let colorClass = '';
-          if (isFilled) {
-             const rand = Math.random();
-             if (rand < 0.1) colorClass = 'day-low';
-             else if (rand < 0.3) colorClass = 'day-mid';
+          const score = checkInMap[dString];
+          if (score !== undefined) {
+             if (score < 5) colorClass = 'day-low';
+             else if (score < 8) colorClass = 'day-mid';
              else colorClass = 'day-high';
           }
           
           return (
             <div 
               key={i} 
-              className={`calendar-day ${colorClass}`} 
-              title="Daily Vibe Check"
-            />
+              className={`calendar-day flex-center ${colorClass}`} 
+              title={score !== undefined ? `Score: ${score.toFixed(1)} on ${dString}` : `No check-in on ${dString}`}
+              style={{ position: 'relative' }}
+            >
+              {colorClass === 'day-high' && <span style={{fontSize: '9px'}}>✨</span>}
+            </div>
           );
         })}
       </div>
-      <div className="flex-center gap-2" style={{ marginTop: '1rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-        <span>Less Vibe</span>
-        <div className="calendar-day day-low"></div>
-        <div className="calendar-day day-mid"></div>
-        <div className="calendar-day day-high"></div>
+      <div className="flex-center gap-2" style={{ marginTop: '1.5rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+        <span>Needs Love</span>
+        <div className="calendar-day day-low" style={{width: '12px', height: '12px'}}></div>
+        <div className="calendar-day day-mid" style={{width: '12px', height: '12px'}}></div>
+        <div className="calendar-day day-high flex-center" style={{width: '12px', height: '12px'}}>✨</div>
         <span>High Vibe</span>
       </div>
     </div>
