@@ -357,6 +357,83 @@ export default function Dashboard({ myScore, friends, activeBestieEmail, setActi
           </div>
         </div>
       </section>
+
+      {/* Game Invite Modal */}
+      {gameSession?.status === 'waiting' && gameSession.initiatedBy !== currentUser.email && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: 'rgba(0,0,0,0.4)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 2000,
+          animation: 'fadeIn 0.3s ease'
+        }}>
+          <div className="card" style={{
+            width: '400px',
+            padding: '3rem',
+            textAlign: 'center',
+            background: 'var(--surface-container-lowest)',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+            border: '1px solid var(--primary-container)',
+            animation: 'slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+          }}>
+            <div style={{
+              width: '80px',
+              height: '80px',
+              margin: '0 auto 2rem',
+              background: 'var(--primary-container)',
+              borderRadius: '2rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'relative'
+            }}>
+              <Gamepad2 size={40} color="var(--primary)" />
+              <div className="animate-ping" style={{
+                position: 'absolute',
+                inset: -10,
+                border: '2px solid var(--primary)',
+                borderRadius: '2.5rem',
+              }}></div>
+            </div>
+            
+            <h2 className="headline-sm" style={{ marginBottom: '1rem' }}>Incoming Game Date!</h2>
+            <p className="on-surface-variant" style={{ marginBottom: '2.5rem', fontSize: '1.1rem', color: 'var(--on-surface)' }}>
+              <strong>{bestieName}</strong> is calling you to play in DuoSpace! 🎮
+            </p>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <button 
+                onClick={joinGame}
+                className="btn-primary"
+                style={{ width: '100%', padding: '1.2rem', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.8rem' }}
+              >
+                Jump In Now <ArrowRight size={20} />
+              </button>
+              <button 
+                onClick={cancelGame}
+                style={{ 
+                  background: 'none', 
+                  border: 'none', 
+                  color: 'var(--secondary)', 
+                  fontWeight: 700, 
+                  cursor: 'pointer',
+                  padding: '1rem',
+                  opacity: 0.6
+                }}
+              >
+                Not right now
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
