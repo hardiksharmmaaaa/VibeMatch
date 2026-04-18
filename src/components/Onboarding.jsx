@@ -52,6 +52,10 @@ export default function Onboarding({ currentUser, pendingFriends, onInviteSent }
           <p className="on-surface-variant" style={{ marginTop: '0.5rem' }}>
             Sync vibes with your favorite person. They'll receive an email to join your dreamscape.
           </p>
+          <div style={{ marginTop: '1rem', padding: '0.8rem', background: '#fff5f5', border: '1px solid #feb2b2', borderRadius: '8px', fontSize: '0.75rem', color: '#c53030', display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>info</span>
+            <p><strong>Dev Note:</strong> Since we are using Resend's free tier, invitations will only be delivered to your own registered email address.</p>
+          </div>
         </div>
 
         {errorMsg && (

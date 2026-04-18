@@ -48,6 +48,12 @@ function App() {
     }
   };
 
+  const handleLogout = () => {
+    setCurrentUser(null);
+    setActiveBestieEmail(null);
+    setMyScore(null);
+  };
+
   const handleMCQComplete = async (score) => {
     try {
       await fetch(`http://localhost:5001/api/user/${currentUser.email}/score`, {
@@ -77,11 +83,19 @@ function App() {
         <LandingPage onLogin={handleLogin} />
       ) : (
         <div className="app-container">
-          <header className="editorial-header">
-            <p className="label-sm">Tactile Dreamscape</p>
-            <h1 className="display-lg">VibeCheck</h1>
+            <div className="flex justify-between items-center w-full">
+              <div className="flex flex-col">
+                <p className="label-sm">Tactile Dreamscape</p>
+                <h1 className="display-lg">VibeCheck</h1>
+              </div>
+              <button 
+                onClick={handleLogout}
+                className="text-[10px] font-black uppercase tracking-widest text-[#ac2d5e] hover:underline"
+              >
+                Sign Out
+              </button>
+            </div>
             <p className="on-surface-variant">Checking in with your circle, {currentUser?.username || 'Bestie'}</p>
-          </header>
 
           {showOnboarding && (
             <Onboarding 

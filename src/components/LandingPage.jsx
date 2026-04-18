@@ -75,6 +75,43 @@ export default function LandingPage({ onLogin }) {
     }
   };
 
+  const handleGoogleCallback = async (response) => {
+    try {
+      setIsLoading(true);
+      const res = await fetch('http://localhost:5001/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: response.credential })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Google Login Failed');
+      onLogin(data.user);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (showAuth && window.google) {
+      window.google.accounts.id.initialize({
+        client_id: "1031277008483-tbtfg4rui66281ointja9gf8g8v878ho.apps.googleusercontent.com",
+        callback: handleGoogleCallback
+      });
+      window.google.accounts.id.renderButton(
+        document.getElementById("googleSyncButton"),
+        { 
+          theme: "outline", 
+          size: "large", 
+          width: "320", 
+          text: "continue_with",
+          shape: "pill"
+        }
+      );
+    }
+  }, [showAuth]);
+
   const renderNav = () => (
     <header className="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-3xl shadow-[0_8px_32px_0_rgba(172,45,94,0.05)]">
       <nav className="flex justify-between items-center px-6 md:px-12 py-6 max-w-screen-2xl mx-auto font-['Plus_Jakarta_Sans']">
@@ -522,11 +559,8 @@ export default function LandingPage({ onLogin }) {
                   <span className="relative px-4 bg-white text-[10px] font-black uppercase tracking-widest text-zinc-300">or continue with</span>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4">
-                  <button className="flex items-center justify-center gap-3 w-full py-4 border border-zinc-200 rounded-xl hover:bg-zinc-50 transition-colors bg-white shadow-sm group">
-                    <img className="w-5 h-5 group-hover:scale-110 transition-transform" src="https://www.gstatic.com/images/branding/product/2x/googleg_48dp.png" alt="Google" />
-                    <span className="text-sm font-bold text-[#313335]">Google</span>
-                  </button>
+                <div className="flex justify-center">
+                  <div id="googleSyncButton"></div>
                 </div>
 
                 <p className="mt-10 text-center text-xs text-zinc-400 font-medium">
