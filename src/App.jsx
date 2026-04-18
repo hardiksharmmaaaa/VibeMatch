@@ -72,35 +72,37 @@ function App() {
   const showDashboard = currentUser && acceptedFriends.length > 0 && myScore !== null;
 
   return (
-    <div className="app-container animate-fade-in">
-      {!showLanding && (
-        <header className="editorial-header">
-          <p className="label-sm">Tactile Dreamscape</p>
-          <h1 className="display-lg">VibeCheck</h1>
-          <p className="on-surface-variant">Checking in with your circle, {currentUser?.username || 'Bestie'}</p>
-        </header>
-      )}
+    <div className="animate-fade-in">
+      {showLanding ? (
+        <LandingPage onLogin={handleLogin} />
+      ) : (
+        <div className="app-container">
+          <header className="editorial-header">
+            <p className="label-sm">Tactile Dreamscape</p>
+            <h1 className="display-lg">VibeCheck</h1>
+            <p className="on-surface-variant">Checking in with your circle, {currentUser?.username || 'Bestie'}</p>
+          </header>
 
-      {showLanding && <LandingPage onLogin={handleLogin} />}
+          {showOnboarding && (
+            <Onboarding 
+              currentUser={currentUser}
+              pendingFriends={pendingFriends}
+              onInviteSent={refreshUser}
+            />
+          )}
 
-      {showOnboarding && (
-        <Onboarding 
-          currentUser={currentUser}
-          pendingFriends={pendingFriends}
-          onInviteSent={refreshUser}
-        />
-      )}
+          {showMCQ && <MCQ onComplete={handleMCQComplete} />}
 
-      {showMCQ && <MCQ onComplete={handleMCQComplete} />}
-
-      {showDashboard && (
-        <Dashboard 
-          myScore={myScore} 
-          friends={acceptedFriends}
-          activeBestieEmail={activeBestieEmail}
-          setActiveBestieEmail={setActiveBestieEmail}
-          currentUser={currentUser}
-        />
+          {showDashboard && (
+            <Dashboard 
+              myScore={myScore} 
+              friends={acceptedFriends}
+              activeBestieEmail={activeBestieEmail}
+              setActiveBestieEmail={setActiveBestieEmail}
+              currentUser={currentUser}
+            />
+          )}
+        </div>
       )}
     </div>
   );
