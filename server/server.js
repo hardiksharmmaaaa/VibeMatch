@@ -315,7 +315,7 @@ app.post('/api/user/:email/update', async (req, res) => {
     const user = await User.findOneAndUpdate(
        { email: req.params.email }, 
        { username }, 
-       { new: true }
+       { returnDocument: 'after' }
     );
     if (!user) return res.status(404).json({ error: 'User not found' });
 
@@ -323,7 +323,7 @@ app.post('/api/user/:email/update', async (req, res) => {
     const profile = await Profile.findOneAndUpdate(
       { email: req.params.email },
       { phone, bio, avatarSeed },
-      { new: true, upsert: true }
+      { returnDocument: 'after', upsert: true }
     );
 
     res.status(200).json({ 
@@ -353,7 +353,7 @@ app.post('/api/game/invite', async (req, res) => {
     const session = await GameSession.findOneAndUpdate(
       { pair },
       { status: 'waiting', initiatedBy: from, updatedAt: new Date() },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: 'after' }
     );
     
     res.status(200).json({ session });
@@ -370,7 +370,7 @@ app.post('/api/game/join', async (req, res) => {
     const session = await GameSession.findOneAndUpdate(
       { pair },
       { status: 'ready', updatedAt: new Date() },
-      { new: true }
+      { returnDocument: 'after' }
     );
     
     res.status(200).json({ session });
