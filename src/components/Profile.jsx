@@ -6,10 +6,10 @@ export default function Profile({ currentUser, onUpdateUser }) {
   const [formData, setFormData] = useState({
     username: currentUser?.username || '',
     email: currentUser?.email || '',
-    phone: currentUser?.phone || '+91 98765 43210', // Default placeholder with Indian prefix
-    bio: currentUser?.bio || 'Just a vibe check bestie 🌸'
+    phone: currentUser?.phone || '+91 ',
+    bio: currentUser?.bio || 'Just a vibe check bestie 🌸',
+    avatarSeed: currentUser?.avatarSeed || currentUser?.username || 'User'
   });
-  const [avatarSeed, setAvatarSeed] = useState(currentUser?.username || 'User');
 
   const avatars = ['Anya', 'Jasper', 'Kiki', 'Luna', 'Milo', 'Coco', 'Oliver', 'Zoe'];
 
@@ -32,7 +32,7 @@ export default function Profile({ currentUser, onUpdateUser }) {
 
   const changeAvatar = () => {
     const newSeed = avatars[Math.floor(Math.random() * avatars.length)] + Math.floor(Math.random() * 100);
-    setAvatarSeed(newSeed);
+    setFormData({ ...formData, avatarSeed: newSeed });
   };
 
   return (
@@ -75,7 +75,7 @@ export default function Profile({ currentUser, onUpdateUser }) {
             transform: 'rotate(-3deg)'
           }}>
             <img 
-               src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}`} 
+               src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${formData.avatarSeed}`} 
                alt="Avatar" 
                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />

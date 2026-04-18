@@ -67,6 +67,61 @@ export default function Dashboard({ myScore, friends, activeBestieEmail, setActi
     return 'Feeling a bit blue 🥺';
   };
 
+  const [gameSession, setGameSession] = useState(null);
+
+  // Poll for game session status
+  useEffect(() => {
+    if (!currentUser?.email || !activeBestieEmail) return;
+    
+    const pollGame = async () => {
+      try {
+        const res = await fetch(`http://localhost:5001/api/game/status/${currentUser.email}/${activeBestieEmail}`);
+        if (res.ok) {
+          const data = await res.json();
+          setGameSession(data.session);
+          
+          // If status is ready, redirect
+          if (data.session?.status === 'ready') {
+            const emails = [currentUser.email, activeBestieEmail].sort();
+            const roomId = emails.map(e => e.split('@')[0]).join('-').replace(/[^a-zA-Z0-9-]/g, '');
+            // Small delay to ensure both see the status before redirecting
+            setTimeout(() => {
+               window.location.href = `http://localhost:3000/room/${roomId}`;
+            }, 800);
+          }
+        }
+      } catch (err) {}
+    };
+
+    pollGame();
+    const interval = setInterval(pollGame, 3000);
+    return () => clearInterval(interval);
+  }, [currentUser?.email, activeBestieEmail]);
+
+  const initiateGame = async () => {
+    await fetch('http://localhost:5001/api/game/invite', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: currentUser.email, to: activeBestieEmail })
+    });
+  };
+
+  const joinGame = async () => {
+    await fetch('http://localhost:5001/api/game/join', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: currentUser.email, to: activeBestieEmail })
+    });
+  };
+
+  const cancelGame = async () => {
+    await fetch('http://localhost:5001/api/game/cancel', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: currentUser.email, to: activeBestieEmail })
+    });
+  };
+
   return (
     <div className="dashboard-container animate-fade-in" style={{ paddingBottom: '2rem' }}>
       
@@ -113,7 +168,7 @@ export default function Dashboard({ myScore, friends, activeBestieEmail, setActi
            <div>
               <div className="flex-center gap-3" style={{ justifyContent: 'flex-start', marginBottom: '2rem' }}>
                  <div style={{ width: '56px', height: '56px', borderRadius: '1rem', overflow: 'hidden', background: 'var(--surface-container-high)' }}>
-                    <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser?.email || 'User'}`} alt="me" />
+                    <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser?.avatarSeed || currentUser?.email || 'User'}`} alt="me" />
                  </div>
                  <div>
                     <h2 className="headline-sm" style={{ margin: 0, fontSize: '1.4rem' }}>My Aura</h2>
@@ -255,10 +310,50 @@ export default function Dashboard({ myScore, friends, activeBestieEmail, setActi
                 <div style={{ position: 'absolute', bottom: '1rem', left: '1rem' }}><Gamepad2 color="white" /></div>
              </div>
              <h4 className="headline-sm" style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>Game Date</h4>
-             <p className="on-surface-variant" style={{ fontSize: '0.85rem', marginBottom: '1.5rem' }}>Play cute mini-games and level up.</p>
-             <button style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                Let's Play <ArrowRight size={14} />
-             </button>
+             
+             {!gameSession ? (
+               <>
+                 <p className="on-surface-variant" style={{ fontSize: '0.85rem', marginBottom: '1.5rem' }}>Play cute mini-games and level up.</p>
+                 <button 
+                    onClick={initiateGame}
+                    style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
+                 >
+                    Send Invite <ArrowRight size={14} />
+                 </button>
+               </>
+             ) : gameSession.status === 'waiting' ? (
+               gameSession.initiatedBy === currentUser.email ? (
+                 <>
+                   <p className="on-surface-variant" style={{ fontSize: '0.85rem', marginBottom: '1.5rem' }}>Waiting for {bestieName} to join...</p>
+                   <button 
+                      onClick={cancelGame}
+                      style={{ background: 'none', border: 'none', color: 'var(--tertiary)', fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
+                   >
+                      Cancel
+                   </button>
+                 </>
+               ) : (
+                 <>
+                   <p className="on-surface-variant" style={{ fontSize: '0.85rem', marginBottom: '1.5rem' }}>{bestieName} wants to play!</p>
+                   <div style={{ display: 'flex', gap: '1rem' }}>
+                     <button 
+                        onClick={joinGame}
+                        style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
+                     >
+                        Join Now <ArrowRight size={14} />
+                     </button>
+                     <button 
+                        onClick={cancelGame}
+                        style={{ background: 'none', border: 'none', color: 'var(--secondary)', fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', opacity: 0.5, cursor: 'pointer' }}
+                     >
+                        Decline
+                     </button>
+                   </div>
+                 </>
+               )
+             ) : (
+               <p className="on-surface-variant" style={{ fontSize: '0.85rem', marginBottom: '1.5rem' }}>Opening DuoSpace...</p>
+             )}
           </div>
         </div>
       </section>
