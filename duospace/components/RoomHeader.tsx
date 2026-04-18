@@ -21,10 +21,19 @@ export default function RoomHeader({ roomId }: { roomId: string }) {
         </p>
       </div>
       
-      <div className="mt-4 sm:mt-0 flex gap-[-10px]">
-        {/* Avatars placeholder */}
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 border-2 border-zinc-900 shadow-md"></div>
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-rose-500 border-2 border-zinc-900 -ml-3 shadow-md"></div>
+      <div className="mt-4 sm:mt-0 flex items-center gap-4">
+        <button 
+          onClick={() => window.location.href = 'http://localhost:5173'}
+          className="text-sm font-medium text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-1"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          Back to VibeCheck
+        </button>
+        <div className="flex">
+          {/* Avatars placeholder */}
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 border-2 border-zinc-900 shadow-md"></div>
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-rose-500 border-2 border-zinc-900 -ml-3 shadow-md"></div>
+        </div>
       </div>
     </div>
   );

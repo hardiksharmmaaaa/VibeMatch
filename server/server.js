@@ -39,6 +39,22 @@ const UserSchema = new mongoose.Schema({
 });
 const User = mongoose.model('User', UserSchema);
 
+const ProfileSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true },
+  phone: { type: String, default: '+91 ' },
+  bio: { type: String, default: 'Just a vibe check bestie 🌸' },
+  avatarSeed: { type: String, default: 'User' }
+}, { collection: 'Profile' });
+const Profile = mongoose.model('Profile', ProfileSchema);
+
+const GameSessionSchema = new mongoose.Schema({
+  pair: [String], // Emails
+  status: { type: String, enum: ['waiting', 'ready'], default: 'waiting' },
+  initiatedBy: String,
+  updatedAt: { type: Date, default: Date.now, expires: 300 }
+});
+const GameSession = mongoose.model('GameSession', GameSessionSchema);
+
 app.post('/api/auth/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -59,9 +75,19 @@ app.post('/api/auth/login', async (req, res) => {
     const user = await User.findOne({ email, password });
     if (!user) return res.status(401).json({ error: 'Invalid credentials' });
 
+    const profile = await Profile.findOne({ email });
     res.status(200).json({ 
       message: 'Login successful', 
-      user: { username: user.username, email: user.email, friends: user.friends, checkIns: user.checkIns, latestRating: user.latestRating, phone: user.phone, bio: user.bio } 
+      user: { 
+        username: user.username, 
+        email: user.email, 
+        friends: user.friends, 
+        checkIns: user.checkIns, 
+        latestRating: user.latestRating, 
+        phone: profile?.phone || '+91 ', 
+        bio: profile?.bio || 'Just a vibe check bestie 🌸',
+        avatarSeed: profile?.avatarSeed || 'User'
+      } 
     });
   } catch (error) {
     res.status(500).json({ error: 'Error logging in' });
@@ -89,9 +115,19 @@ app.post('/api/auth/google', async (req, res) => {
       await user.save();
     }
 
+    const profile = await Profile.findOne({ email });
     res.status(200).json({ 
       message: 'Google login successful', 
-      user: { username: user.username, email: user.email, friends: user.friends, checkIns: user.checkIns, latestRating: user.latestRating, phone: user.phone, bio: user.bio } 
+      user: { 
+        username: user.username, 
+        email: user.email, 
+        friends: user.friends, 
+        checkIns: user.checkIns, 
+        latestRating: user.latestRating, 
+        phone: profile?.phone || '+91 ', 
+        bio: profile?.bio || 'Just a vibe check bestie 🌸',
+        avatarSeed: profile?.avatarSeed || 'User'
+      } 
     });
   } catch (error) {
     console.error('Google Auth Error:', error);
@@ -104,7 +140,26 @@ app.get('/api/user/:email', async (req, res) => {
   try {
     const user = await User.findOne({ email: req.params.email });
     if (!user) return res.status(404).json({ error: 'User not found' });
-    res.status(200).json({ user: { username: user.username, email: user.email, friends: user.friends, checkIns: user.checkIns, latestRating: user.latestRating, phone: user.phone, bio: user.bio } });
+    
+    let profile = await Profile.findOne({ email: req.params.email });
+    if (!profile) {
+      // Create a default profile if it doesn't exist yet
+      profile = new Profile({ email: req.params.email });
+      await profile.save();
+    }
+
+    res.status(200).json({ 
+      user: { 
+        username: user.username, 
+        email: user.email, 
+        friends: user.friends, 
+        checkIns: user.checkIns, 
+        latestRating: user.latestRating, 
+        phone: profile.phone, 
+        bio: profile.bio,
+        avatarSeed: profile.avatarSeed
+      } 
+    });
   } catch (error) {
     res.status(500).json({ error: 'Error fetching user data' });
   }
@@ -254,16 +309,94 @@ app.get('/api/accept', async (req, res) => {
 
 app.post('/api/user/:email/update', async (req, res) => {
   try {
-    const { username, phone, bio } = req.body;
+    const { username, phone, bio, avatarSeed } = req.body;
+    
+    // Update basic user info
     const user = await User.findOneAndUpdate(
        { email: req.params.email }, 
-       { username, phone, bio }, 
+       { username }, 
        { new: true }
     );
     if (!user) return res.status(404).json({ error: 'User not found' });
-    res.status(200).json({ message: 'Profile updated successfully', user: { username: user.username, email: user.email, friends: user.friends, checkIns: user.checkIns, latestRating: user.latestRating, phone: user.phone, bio: user.bio } });
+
+    // Update or Create profile in the new 'profile' collection
+    const profile = await Profile.findOneAndUpdate(
+      { email: req.params.email },
+      { phone, bio, avatarSeed },
+      { new: true, upsert: true }
+    );
+
+    res.status(200).json({ 
+      message: 'Profile updated successfully', 
+      user: { 
+        username: user.username, 
+        email: user.email, 
+        friends: user.friends, 
+        checkIns: user.checkIns, 
+        latestRating: user.latestRating, 
+        phone: profile.phone, 
+        bio: profile.bio,
+        avatarSeed: profile.avatarSeed
+      } 
+    });
   } catch (error) {
     res.status(500).json({ error: 'Error updating profile' });
+  }
+});
+
+// GAME LOBBY ENDPOINTS
+app.post('/api/game/invite', async (req, res) => {
+  try {
+    const { from, to } = req.body;
+    const pair = [from, to].sort();
+    
+    const session = await GameSession.findOneAndUpdate(
+      { pair },
+      { status: 'waiting', initiatedBy: from, updatedAt: new Date() },
+      { upsert: true, new: true }
+    );
+    
+    res.status(200).json({ session });
+  } catch (err) {
+    res.status(500).json({ error: 'Error initiating game' });
+  }
+});
+
+app.post('/api/game/join', async (req, res) => {
+  try {
+    const { from, to } = req.body;
+    const pair = [from, to].sort();
+    
+    const session = await GameSession.findOneAndUpdate(
+      { pair },
+      { status: 'ready', updatedAt: new Date() },
+      { new: true }
+    );
+    
+    res.status(200).json({ session });
+  } catch (err) {
+    res.status(500).json({ error: 'Error joining game' });
+  }
+});
+
+app.get('/api/game/status/:email1/:email2', async (req, res) => {
+  try {
+    const pair = [req.params.email1, req.params.email2].sort();
+    const session = await GameSession.findOne({ pair });
+    res.status(200).json({ session });
+  } catch (err) {
+    res.status(500).json({ error: 'Error fetching game status' });
+  }
+});
+
+app.post('/api/game/cancel', async (req, res) => {
+  try {
+    const { from, to } = req.body;
+    const pair = [from, to].sort();
+    await GameSession.deleteOne({ pair });
+    res.status(200).json({ message: 'Game cancelled' });
+  } catch (err) {
+    res.status(500).json({ error: 'Error cancelling game' });
   }
 });
 

@@ -166,7 +166,7 @@ function App() {
                    background: 'var(--surface-container-high)',
                    transition: 'all 0.2s ease'
                  }}>
-                 <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser?.username || 'User'}`} alt="profile" />
+                 <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser?.avatarSeed || currentUser?.username || 'User'}`} alt="profile" />
                </div>
                <button 
                 onClick={handleLogout}
