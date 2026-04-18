@@ -32,7 +32,7 @@ export default function Onboarding({ currentUser, pendingFriends, onInviteSent }
         setErrorMsg(data.error || "An error occurred");
       } else {
         setMessage(data.message);
-        onInviteSent(); // trigger parent refresh
+        onInviteSent();
         setEmail('');
       }
     } catch (err) {
@@ -43,61 +43,63 @@ export default function Onboarding({ currentUser, pendingFriends, onInviteSent }
   };
 
   return (
-    <div className="onboarding-card glass animate-slide-in">
-      
-      <div className="flex-center" style={{ marginBottom: '1.5rem' }}>
-        <div style={{ background: 'rgba(255,255,255,0.1)', padding: '1rem', borderRadius: '50%' }}>
-          <UserPlus size={40} color="var(--accent-blue)" />
-        </div>
-      </div>
-      <h2 style={{ marginBottom: '1rem', fontSize: '2rem' }}>Nominate Your Bestie</h2>
-      <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>
-        You must have an accepted friend to use the app. They will receive an email to accept. (Limit: 2 per day)
-      </p>
-
-      {errorMsg && (
-        <div style={{ background: 'rgba(255,0,0,0.1)', border: '1px solid var(--accent-pink)', padding: '0.8rem', borderRadius: '8px', color: 'var(--text-main)', marginBottom: '1rem', fontSize: '0.9rem' }}>
-          {errorMsg}
-        </div>
-      )}
-      
-      {message && (
-        <div style={{ background: 'rgba(0,255,136,0.1)', border: '1px solid var(--accent-green)', padding: '0.8rem', borderRadius: '8px', color: 'var(--text-main)', marginBottom: '1rem', fontSize: '0.9rem' }}>
-          {message}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="col gap-2">
-        <input 
-          type="email" 
-          className="input-glass" 
-          placeholder="bestie@example.com" 
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          disabled={isWaiting}
-        />
-        <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem' }} disabled={isWaiting}>
-          {isWaiting ? 'Sending...' : 'Send Invitation'} <Send size={18} />
-        </button>
-      </form>
-
-      {pendingFriends && pendingFriends.length > 0 && (
-        <div style={{ marginTop: '2rem', textAlign: 'left', background: 'rgba(0,0,0,0.2)', padding:'1rem', borderRadius: '12px' }}>
-          <h4 style={{ marginBottom: '1rem', color: 'var(--text-muted)' }}>Mails Sent - Waiting for Acceptance</h4>
-          {pendingFriends.map((f, i) => (
-            <div key={i} className="flex-between" style={{ padding: '0.5rem 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-              <span>{f.email}</span>
-              <span className="flex-center gap-1" style={{ fontSize: '0.8rem', color: 'var(--accent-orange)' }}>
-                <Clock size={14} /> Pending
-              </span>
-            </div>
-          ))}
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '1rem' }}>
-            The app will automatically unlock once someone accepts.
+    <div className="flex-center" style={{ minHeight: '60vh' }}>
+      <div className="panel animate-fade-in" style={{ maxWidth: '500px', width: '100%', background: 'var(--surface-lowest)', boxShadow: '0 20px 60px -10px rgba(125, 77, 95, 0.1)' }}>
+        
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <p className="label-sm">Expanding the Circle</p>
+          <h1 className="headline-sm" style={{ fontSize: '2rem', marginTop: '0.5rem' }}>Nominate Your Bestie</h1>
+          <p className="on-surface-variant" style={{ marginTop: '0.5rem' }}>
+            Sync vibes with your favorite person. They'll receive an email to join your dreamscape.
           </p>
         </div>
-      )}
+
+        {errorMsg && (
+          <div style={{ background: 'var(--primary-container)', color: 'var(--primary)', padding: '1rem', borderRadius: 'var(--radius-sm)', marginBottom: '1.5rem', fontSize: '0.9rem', fontWeight: 500 }}>
+            {errorMsg}
+          </div>
+        )}
+        
+        {message && (
+          <div style={{ background: 'rgba(0,255,136,0.1)', border: '1px solid var(--primary)', padding: '1rem', borderRadius: 'var(--radius-sm)', color: 'var(--primary)', marginBottom: '1.5rem', fontSize: '0.9rem', fontWeight: 500 }}>
+            {message}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <input 
+            type="email" 
+            placeholder="bestie@example.com" 
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            disabled={isWaiting}
+            style={{ padding: '1rem 1.4rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--surface-high)', background: 'var(--surface-low)', outline: 'none' }}
+          />
+          <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center' }} disabled={isWaiting}>
+            {isWaiting ? 'Sending...' : 'Send Invitation'} <Send size={18} />
+          </button>
+        </form>
+
+        {pendingFriends && pendingFriends.length > 0 && (
+          <div style={{ marginTop: '2rem' }}>
+            <h4 className="label-sm" style={{ marginBottom: '1rem' }}>Pending Synced Circles</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {pendingFriends.map((f, i) => (
+                <div key={i} className="flex-between card" style={{ padding: '0.8rem 1rem', background: 'var(--surface-low)' }}>
+                  <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>{f.email}</span>
+                  <span className="flex-center gap-1" style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: 700 }}>
+                    <Clock size={14} /> PENDING
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p className="on-surface-variant" style={{ fontSize: '0.8rem', marginTop: '1rem', textAlign: 'center' }}>
+               Automatically unlocks once accepted.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -10,7 +10,6 @@ function App() {
   const [activeBestieEmail, setActiveBestieEmail] = useState(null);
   const [myScore, setMyScore] = useState(null);
 
-  // Re-fetch user to check for updated statuses
   const refreshUser = async () => {
     if (!currentUser) return;
     try {
@@ -18,8 +17,6 @@ function App() {
       const data = await res.json();
       if (res.ok) {
         setCurrentUser(data.user);
-        
-        // Auto-select first accepted friend if none selected
         const acceptedFriends = data.user.friends.filter(f => f.status === 'accepted');
         if (acceptedFriends.length > 0 && !activeBestieEmail) {
           setActiveBestieEmail(acceptedFriends[0].email);
@@ -32,7 +29,6 @@ function App() {
 
   useEffect(() => {
     if (currentUser) {
-      // Poll every 5 seconds to automatically advance when friend accepts
       const interval = setInterval(refreshUser, 5000);
       return () => clearInterval(interval);
     }
@@ -44,12 +40,9 @@ function App() {
     if (acceptedFriends.length > 0) {
       setActiveBestieEmail(acceptedFriends[0].email);
     }
-    
-    // Check if user already checked in today
-    if (user.checkIns && user.checkIns.length > 0) {
+    if (user.checkIns?.length > 0) {
       const lastCheckIn = user.checkIns[user.checkIns.length - 1];
-      const today = new Date().toDateString();
-      if (new Date(lastCheckIn.date).toDateString() === today) {
+      if (new Date(lastCheckIn.date).toDateString() === new Date().toDateString()) {
         setMyScore(lastCheckIn.score);
       }
     }
@@ -70,58 +63,46 @@ function App() {
     }
   };
 
-  const showLanding = !currentUser;
-  
-  // They are in Onboarding if they have NO accepted friends, 
-  // OR explicitly if we added a specific active state (but for now, if no accepted friends we lock them to Onboarding).
   const acceptedFriends = currentUser?.friends?.filter(f => f.status === 'accepted') || [];
   const pendingFriends = currentUser?.friends?.filter(f => f.status === 'pending') || [];
   
+  const showLanding = !currentUser;
   const showOnboarding = currentUser && acceptedFriends.length === 0;
-  
   const showMCQ = currentUser && acceptedFriends.length > 0 && myScore === null;
   const showDashboard = currentUser && acceptedFriends.length > 0 && myScore !== null;
 
   return (
-    <>
-      <div className="app-bg"></div>
-      <div className="app-container">
-        {!showLanding && (
-          <header className="animate-slide-in">
-            <h1 className="title-glow flex-center gap-2">
-              VibeCheck
-            </h1>
-            <p>Your daily friendship sync, {currentUser?.username || 'User'}</p>
-          </header>
-        )}
+    <div className="app-container animate-fade-in">
+      {!showLanding && (
+        <header className="editorial-header">
+          <p className="label-sm">Tactile Dreamscape</p>
+          <h1 className="display-lg">VibeCheck</h1>
+          <p className="on-surface-variant">Checking in with your circle, {currentUser?.username || 'Bestie'}</p>
+        </header>
+      )}
 
-        {showLanding && (
-          <LandingPage onLogin={handleLogin} />
-        )}
+      {showLanding && <LandingPage onLogin={handleLogin} />}
 
-        {showOnboarding && (
-          <Onboarding 
-            currentUser={currentUser}
-            pendingFriends={pendingFriends}
-            onInviteSent={refreshUser}
-          />
-        )}
+      {showOnboarding && (
+        <Onboarding 
+          currentUser={currentUser}
+          pendingFriends={pendingFriends}
+          onInviteSent={refreshUser}
+        />
+      )}
 
-        {showMCQ && (
-          <MCQ onComplete={handleMCQComplete} />
-        )}
+      {showMCQ && <MCQ onComplete={handleMCQComplete} />}
 
-        {showDashboard && (
-          <Dashboard 
-            myScore={myScore} 
-            friends={acceptedFriends}
-            activeBestieEmail={activeBestieEmail}
-            setActiveBestieEmail={setActiveBestieEmail}
-            currentUser={currentUser}
-          />
-        )}
-      </div>
-    </>
+      {showDashboard && (
+        <Dashboard 
+          myScore={myScore} 
+          friends={acceptedFriends}
+          activeBestieEmail={activeBestieEmail}
+          setActiveBestieEmail={setActiveBestieEmail}
+          currentUser={currentUser}
+        />
+      )}
+    </div>
   );
 }
 
