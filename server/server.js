@@ -3,12 +3,15 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const { Resend } = require('resend');
 const nodemailer = require('nodemailer');
+const { OAuth2Client } = require('google-auth-library');
 require('dotenv').config();
+
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder_key'); 
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/vibecheck')
   .then(() => console.log('Connected to MongoDB'))
@@ -62,6 +65,38 @@ app.post('/api/auth/login', async (req, res) => {
     res.status(500).json({ error: 'Error logging in' });
   }
 });
+
+app.post('/api/auth/google', async (req, res) => {
+  try {
+    const { token } = req.body;
+    const ticket = await googleClient.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    const { email, name, sub: googleId } = payload;
+
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = new User({ 
+        username: name, 
+        email, 
+        password: `google_${googleId}`, // Placeholder for schema requirement
+        friends: [] 
+      });
+      await user.save();
+    }
+
+    res.status(200).json({ 
+      message: 'Google login successful', 
+      user: { username: user.username, email: user.email, friends: user.friends, checkIns: user.checkIns, latestRating: user.latestRating } 
+    });
+  } catch (error) {
+    console.error('Google Auth Error:', error);
+    res.status(401).json({ error: 'Invalid Google token' });
+  }
+});
+
 
 app.get('/api/user/:email', async (req, res) => {
   try {
