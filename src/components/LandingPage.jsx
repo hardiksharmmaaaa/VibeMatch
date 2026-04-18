@@ -34,13 +34,10 @@ export default function LandingPage({ onLogin }) {
         throw new Error(data.error || 'Something went wrong');
       }
 
-      // Success
       if (!isLogin) {
-        // Switch to login if registered
         setIsLogin(true);
         setError('Registration successful! Please log in.');
       } else {
-        // Authenticate
         onLogin(data.user);
       }
     } catch (err) {
@@ -51,64 +48,56 @@ export default function LandingPage({ onLogin }) {
   };
 
   return (
-    <div className="onboarding-card glass animate-slide-in" style={{ maxWidth: '400px' }}>
-      <div className="flex-center relative" style={{ marginBottom: '1.5rem', marginTop: '1rem' }}>
-        <span style={{ position: 'absolute', left: '-10px', top: '-20px', fontSize: '1.8rem', animation: 'float 3s infinite ease-in-out' }}>💖</span>
-        <span style={{ position: 'absolute', right: '-10px', top: '5px', fontSize: '1.8rem', animation: 'float 4s infinite ease-in-out', animationDelay: '1s' }}>🧸</span>
-        <h1 className="title-glow flex-center gap-2" style={{ fontSize: '2.5rem' }}>
-          VibeCheck <Sparkles color="var(--accent-blue)" />
-        </h1>
-      </div>
-      
-      <h2 style={{ marginBottom: '0.5rem', fontSize: '1.5rem' }}>
-        {isLogin ? 'Welcome Back' : 'Create Account'}
-      </h2>
-      <p style={{ color: 'var(--text-muted)', marginBottom: '2rem', fontSize: '0.9rem' }}>
-        {isLogin ? 'Log in to check your daily vibes.' : 'Join now to sync vibes with your bestie.'}
-      </p>
-
-      {error && (
-        <div style={{ background: 'rgba(255,0,0,0.1)', border: '1px solid var(--accent-pink)', padding: '0.8rem', borderRadius: '8px', color: 'var(--text-main)', marginBottom: '1rem', fontSize: '0.9rem' }}>
-          {error}
+    <div className="flex-center" style={{ minHeight: '60vh' }}>
+      <div className="panel animate-fade-in" style={{ maxWidth: '440px', width: '100%', background: 'var(--surface-lowest)', boxShadow: '0 20px 60px -10px rgba(125, 77, 95, 0.1)' }}>
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <p className="label-sm">Ethereal Connections</p>
+          <h1 className="display-lg" style={{ fontSize: '2.5rem', marginTop: '0.5rem' }}>VibeCheck</h1>
+          <p className="on-surface-variant">
+            {isLogin ? 'Login to sync your vibes' : 'Join the tactile dreamscape'}
+          </p>
         </div>
-      )}
 
-      <form onSubmit={handleSubmit} className="col gap-2">
-        {!isLogin && (
-          <div className="relative">
-            <input 
-              name="username" type="text" className="input-glass" placeholder="Username" 
-              value={formData.username} onChange={handleChange} required 
-            />
+        {error && (
+          <div style={{ background: 'var(--primary-container)', color: 'var(--primary)', padding: '1rem', borderRadius: 'var(--radius-sm)', marginBottom: '1.5rem', fontSize: '0.9rem', fontWeight: 500 }}>
+            {error}
           </div>
         )}
-        <div className="relative">
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {!isLogin && (
+            <input 
+              name="username" type="text" placeholder="Username" 
+              value={formData.username} onChange={handleChange} required 
+              style={{ padding: '1rem 1.4rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--surface-high)', background: 'var(--surface-low)', outline: 'none' }}
+            />
+          )}
           <input 
-            name="email" type="email" className="input-glass" placeholder="Email Address" 
+            name="email" type="email" placeholder="Email Address" 
             value={formData.email} onChange={handleChange} required 
+            style={{ padding: '1rem 1.4rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--surface-high)', background: 'var(--surface-low)', outline: 'none' }}
           />
-        </div>
-        <div className="relative">
           <input 
-            name="password" type="password" className="input-glass" placeholder="Password" 
+            name="password" type="password" placeholder="Password" 
             value={formData.password} onChange={handleChange} required 
             minLength="6"
+            style={{ padding: '1rem 1.4rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--surface-high)', background: 'var(--surface-low)', outline: 'none' }}
           />
+
+          <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: '1rem' }} disabled={isLoading}>
+            {isLoading ? 'Processing...' : (isLogin ? 'Log In' : 'Sign Up')}
+          </button>
+        </form>
+
+        <div style={{ marginTop: '2rem', textAlign: 'center', fontSize: '0.9rem' }}>
+          <span className="on-surface-variant">{isLogin ? "New to the vibe? " : "Already synced? "}</span>
+          <span 
+            style={{ color: 'var(--primary)', cursor: 'pointer', fontWeight: 700 }} 
+            onClick={() => { setIsLogin(!isLogin); setError(''); }}
+          >
+            {isLogin ? 'Create Account' : 'Log In'}
+          </span>
         </div>
-
-        <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem' }} disabled={isLoading}>
-          {isLoading ? 'Processing...' : (isLogin ? 'Log In' : 'Sign Up')}
-        </button>
-      </form>
-
-      <div style={{ marginTop: '2rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-        {isLogin ? "Don't have an account? " : "Already have an account? "}
-        <span 
-          style={{ color: 'var(--accent-blue)', cursor: 'pointer', fontWeight: 'bold' }} 
-          onClick={() => { setIsLogin(!isLogin); setError(''); }}
-        >
-          {isLogin ? 'Sign Up' : 'Log In'}
-        </span>
       </div>
     </div>
   );
