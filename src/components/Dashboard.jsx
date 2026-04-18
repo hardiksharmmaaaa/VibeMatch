@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Video, Film, Gamepad2, Smartphone, Heart, AlertCircle, Sparkles, Users } from 'lucide-react';
+import { Video, Film, Gamepad2, Smartphone, Heart, AlertCircle, Sparkles, Users, Calendar as CalendarIcon, Coffee, Trophy, Cat, ArrowRight } from 'lucide-react';
 import Calendar from './Calendar';
 
 export default function Dashboard({ myScore, friends, activeBestieEmail, setActiveBestieEmail, currentUser }) {
@@ -61,51 +61,6 @@ export default function Dashboard({ myScore, friends, activeBestieEmail, setActi
 
   const bestieName = activeBestieEmail ? activeBestieEmail.split('@')[0] : 'Bestie';
 
-  const renderActionCard = (score) => {
-    if (score < 5) {
-      return (
-        <div className="card" style={{ background: 'var(--primary-container)', color: 'var(--primary)' }}>
-          <div className="flex-center gap-1" style={{ marginBottom: '0.5rem' }}>
-            <AlertCircle size={20} />
-            <h3 className="headline-sm" style={{ margin: 0, color: 'var(--primary)' }}>Cheer Up Mission 🎀</h3>
-          </div>
-          <p style={{ opacity: 0.8 }}>{bestieName} is feeling a bit blue. Send a funny Reel or start a video call to fix the soul.</p>
-          <div className="flex-center gap-2" style={{ marginTop: '1rem' }}>
-            <button className="btn-primary" style={{ padding: '0.6rem 1.2rem', fontSize: '0.9rem' }}>
-              <Video size={16} /> Call Now
-            </button>
-          </div>
-        </div>
-      );
-    } else if (score >= 8) {
-      return (
-        <div className="card" style={{ background: 'rgba(181, 5, 82, 0.1)', color: 'var(--tertiary)' }}>
-          <div className="flex-center gap-1" style={{ marginBottom: '0.5rem' }}>
-            <Sparkles size={20} />
-            <h3 className="headline-sm" style={{ margin: 0, color: 'var(--tertiary)' }}>Our Vibe 💖</h3>
-          </div>
-          <p style={{ opacity: 0.8 }}>Vibes are immaculate! Time to book a bowling date or a movie night.</p>
-          <button className="btn-primary" style={{ marginTop: '1rem', background: 'var(--tertiary)', padding: '0.6rem 1.2rem' }}>
-             <Gamepad2 size={16} /> Plan Date
-          </button>
-        </div>
-      );
-    } else {
-      return (
-        <div className="card" style={{ background: 'var(--secondary-container)', color: 'var(--secondary)' }}>
-          <div className="flex-center gap-1" style={{ marginBottom: '0.5rem' }}>
-            <Heart size={20} />
-            <h3 className="headline-sm" style={{ margin: 0, color: 'var(--secondary)' }}>Stay Connected ☕</h3>
-          </div>
-          <p style={{ opacity: 0.8 }}>Just an average day. Grab a coffee together or hop on a quick catch-up call!</p>
-          <button className="btn-secondary" style={{ marginTop: '1rem' }}>
-            <Smartphone size={16} /> Send Vibe
-          </button>
-        </div>
-      );
-    }
-  };
-
   const getVibeStatus = (score) => {
     if (score >= 8) return 'Living her best life ✨';
     if (score >= 5) return 'Chilling and thriving ☕';
@@ -113,17 +68,27 @@ export default function Dashboard({ myScore, friends, activeBestieEmail, setActi
   };
 
   return (
-    <div className="dashboard-container animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
+    <div className="dashboard-container animate-fade-in" style={{ paddingBottom: '2rem' }}>
       
-      {/* Squad Switcher - Editorial Pill Style */}
+      {/* Hero Header */}
+      <header style={{ marginBottom: '2rem' }}>
+        <h1 className="display-lg" style={{ color: 'var(--primary)', marginBottom: '0.5rem', fontSize: 'clamp(2.5rem, 6vw, 4rem)' }}>
+          Morning, {currentUser?.username?.split(' ')[0] || 'bestie'}.
+        </h1>
+        <p style={{ color: 'var(--secondary)', fontWeight: 500, fontStyle: 'italic', opacity: 0.8 }}>
+          Check the vibes, stay connected.
+        </p>
+      </header>
+
+      {/* Squad Switcher */}
       {friends.length > 1 && (
-        <div className="flex-center gap-2" style={{ overflowX: 'auto', padding: '0.5rem' }}>
+        <div style={{ display: 'flex', gap: '0.8rem', overflowX: 'auto', padding: '0.5rem 0', marginBottom: '2rem' }}>
           {friends.map((f, i) => (
             <button 
               key={i}
               onClick={() => setActiveBestieEmail(f.email)}
               className={activeBestieEmail === f.email ? 'btn-primary' : 'btn-secondary'}
-              style={{ fontSize: '0.85rem', padding: '0.5rem 1.2rem' }}
+              style={{ fontSize: '0.8rem', padding: '0.6rem 1.4rem', whiteSpace: 'nowrap' }}
             >
               {f.email.split('@')[0]}
             </button>
@@ -131,89 +96,172 @@ export default function Dashboard({ myScore, friends, activeBestieEmail, setActi
         </div>
       )}
 
-      {/* Main Grid - Intentional Asymmetry */}
-      <div className="panel" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--spacing-lg)', alignItems: 'start' }}>
+      {/* Main Bento Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem', marginBottom: '2rem' }}>
         
-        {/* Personal Stats Section */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
-           <h2 className="headline-sm">My Current Vibe</h2>
-           <div className="card" style={{ textAlign: 'center', padding: 'var(--spacing-lg)' }}>
-             <p className="label-sm">Daily Score</p>
-             <h1 className="display-lg" style={{ margin: '0.5rem 0', color: 'var(--primary)' }}>
-               {myScore.toFixed(1)}
-             </h1>
-             <p className="on-surface-variant">Thriving today! 🚀</p>
+        {/* Personal Vibe Card */}
+        <div className="card" style={{ 
+          background: 'var(--surface-container-lowest)', 
+          padding: '2.5rem', 
+          display: 'flex', 
+          flexDirection: 'column', 
+          justifyContent: 'space-between',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+           <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '120px', height: '120px', background: 'var(--primary-container)', opacity: 0.1, borderRadius: '50%', filter: 'blur(30px)' }}></div>
+           <div>
+              <div className="flex-center gap-3" style={{ justifyContent: 'flex-start', marginBottom: '2rem' }}>
+                 <div style={{ width: '56px', height: '56px', borderRadius: '1rem', overflow: 'hidden', background: 'var(--surface-container-high)' }}>
+                    <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser?.email || 'User'}`} alt="me" />
+                 </div>
+                 <div>
+                    <h2 className="headline-sm" style={{ margin: 0, fontSize: '1.4rem' }}>My Aura</h2>
+                    <p className="label-sm" style={{ color: 'var(--primary)', fontSize: '0.65rem' }}>Radiating energy</p>
+                 </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+                 <span className="display-lg" style={{ color: 'var(--primary)', fontSize: '5rem' }}>{myScore?.toFixed(0)}</span>
+                 <span className="headline-sm" style={{ opacity: 0.2 }}>/10</span>
+              </div>
            </div>
-           
-           <div className="card" style={{ background: 'var(--surface-high)' }}>
-             <p className="label-sm">Activity</p>
-             <p className="on-surface" style={{ marginTop: '0.5rem', fontWeight: 500 }}>3 day streak with {bestieName} 🔥</p>
+           <div style={{ marginTop: '2rem', display: 'flex', gap: '0.5rem' }}>
+              <span style={{ padding: '0.5rem 1rem', background: 'var(--primary-container)', opacity: 0.4, borderRadius: '99px', fontSize: '0.75rem', fontWeight: 600 }}>✨ Thriving</span>
+              <span style={{ padding: '0.5rem 1rem', background: 'var(--secondary-container)', opacity: 0.4, borderRadius: '99px', fontSize: '0.75rem', fontWeight: 600 }}>🔥 Streak 3</span>
            </div>
         </div>
 
-        {/* Bestie Section - The "Morning, bestie" feel */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
-          <h2 className="headline-sm">{bestieName}'s Atmosphere</h2>
-          <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', borderTop: '4px solid var(--primary-container)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'var(--primary-container)', overflow: 'hidden' }}>
-                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${bestieName}`} alt="avatar" />
+        {/* Bestie Vibe Card */}
+        <div className="card" style={{ 
+          background: 'var(--surface-container-lowest)', 
+          padding: '2.5rem', 
+          display: 'flex', 
+          flexDirection: 'column', 
+          justifyContent: 'space-between',
+          position: 'relative',
+          overflow: 'hidden',
+          border: bestieScore < 5 ? '2px solid var(--primary-container)' : 'none'
+        }}>
+           {bestieScore < 5 && (
+             <div style={{ position: 'absolute', top: '1rem', right: '1rem' }}>
+                <AlertCircle size={32} color="var(--primary-container)" opacity={0.3} />
+             </div>
+           )}
+           <div>
+              <div className="flex-center gap-3" style={{ justifyContent: 'flex-start', marginBottom: '2rem' }}>
+                 <div style={{ width: '56px', height: '56px', borderRadius: '1rem', overflow: 'hidden', background: 'var(--primary-container)' }}>
+                    <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${bestieName}`} alt="bestie" />
+                 </div>
+                 <div>
+                    <h2 className="headline-sm" style={{ margin: 0, fontSize: '1.4rem' }}>{bestieName}</h2>
+                    <p className="label-sm" style={{ color: bestieScore < 5 ? 'var(--tertiary)' : 'var(--primary)', fontSize: '0.65rem' }}>
+                      {getVibeStatus(bestieScore)}
+                    </p>
+                 </div>
               </div>
-              <div>
-                <h3 className="headline-sm" style={{ margin: 0, fontSize: '1.2rem' }}>{bestieName}</h3>
-                <p className="label-sm" style={{ fontSize: '0.65rem' }}>{getVibeStatus(bestieScore)}</p>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+                 <span className="display-lg" style={{ color: bestieScore < 5 ? 'var(--tertiary)' : 'var(--primary)', fontSize: '5rem' }}>
+                    {bestieScore.toFixed(0)}
+                 </span>
+                 <span className="headline-sm" style={{ opacity: 0.2 }}>/10</span>
               </div>
-              <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
-                 <p className="label-sm">Score</p>
-                 <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--primary)' }}>{bestieScore.toFixed(1)}</span>
-              </div>
-            </div>
-            
-            {renderActionCard(bestieScore)}
-          </div>
+           </div>
+           <div style={{ marginTop: '2rem' }}>
+              {bestieScore < 5 ? (
+                <button className="btn-primary" style={{ width: '100%', padding: '1rem', background: 'var(--tertiary)' }}>Send a Hug</button>
+              ) : (
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                   <span style={{ padding: '0.5rem 1rem', background: 'rgba(172, 45, 94, 0.1)', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 600 }}>🎧 Listening</span>
+                   <span style={{ padding: '0.5rem 1rem', background: 'rgba(172, 45, 94, 0.1)', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 600 }}>☕ Coffee soon</span>
+                </div>
+              )}
+           </div>
         </div>
       </div>
 
-      <div className="panel">
-        <h2 className="headline-sm">Timeline & Mood History</h2>
+      {/* Vibe Trail */}
+      <div className="panel" style={{ 
+        background: 'rgba(24, 24, 27, 0.9)', 
+        backdropFilter: 'blur(20px)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        color: 'white',
+        boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+        marginBottom: '2rem'
+      }}>
+        <div className="flex-between" style={{ marginBottom: '1.5rem' }}>
+          <div className="flex-center gap-2">
+             <CalendarIcon size={20} color="var(--primary-container)" />
+             <h2 className="headline-sm" style={{ margin: 0, color: 'white' }}>Timeline & Mood History</h2>
+          </div>
+          <p className="label-sm" style={{ opacity: 0.5, color: 'white' }}>2026 Season</p>
+        </div>
         <Calendar currentUser={currentUser} />
       </div>
 
-      {/* Sync Activities - Imported from Stitch project */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--spacing-lg)' }}>
-        <div className="panel" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)', background: 'var(--surface-high)' }}>
-          <div className="flex-between">
-            <h2 className="headline-sm" style={{ fontSize: '1.2rem', margin: 0 }}>Vibe-Sync Playlists</h2>
-            <div style={{ padding: '0.4rem', borderRadius: '50%', background: 'var(--primary-container)' }}>
-               <Film size={18} color="var(--primary)" />
-            </div>
-          </div>
-          <p className="on-surface-variant" style={{ fontSize: '0.9rem' }}>Curating a shared soundscape based on your collective aura.</p>
-          <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div style={{ width: '40px', height: '40px', background: 'var(--primary)', borderRadius: '8px' }}></div>
-            <div>
-              <p style={{ fontWeight: 700, fontSize: '0.9rem' }}>Late Night Gossips</p>
-              <p className="label-sm" style={{ fontSize: '0.6rem' }}>8 Tracks • Updated today</p>
-            </div>
-          </div>
-          <button className="btn-secondary" style={{ width: '100%' }}>Open Player</button>
+      {/* Cheer Up Mission Section */}
+      <section>
+        <div className="flex-between" style={{ marginBottom: '2rem' }}>
+          <h3 className="headline-sm" style={{ fontSize: '1.8rem' }}>Cheer Up Mission 🎀</h3>
+          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--primary)', background: 'var(--primary-container)', padding: '0.4rem 1rem', borderRadius: '99px', opacity: 0.6 }}>4 Suggestions</span>
         </div>
 
-        <div className="panel" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)', background: 'var(--secondary-container)' }}>
-          <div className="flex-between">
-            <h2 className="headline-sm" style={{ fontSize: '1.2rem', margin: 0 }}>Cosy Puzzles</h2>
-             <div style={{ padding: '0.4rem', borderRadius: '50%', background: 'var(--surface-lowest)' }}>
-               <Gamepad2 size={18} color="var(--secondary)" />
-            </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem' }}>
+          <div className="card group" style={{ background: 'var(--surface-container-lowest)', padding: '1.5rem', transition: 'transform 0.3s ease' }}>
+             <div style={{ height: '240px', borderRadius: '1rem', overflow: 'hidden', marginBottom: '1.5rem', position: 'relative' }}>
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1PKs2H785Rzt1rX4hdxWvM0VkHSqHhy2Q_KLQTfvlrPzg0Jgg6Mziyyfel-hkiujH30gII5OLKmQpcHtefwj9oovcxsuL8k-q1guUiQX8y-lXH0eKy9CBMEHpSKdlA_Q45PT-W9Cyu7DLoV-9lIez_Wha_C3rjtyQvtmQ18Hila1ASzunSGrIK9G4s7dQWEvOlH75FlPI7pLEiBBsPsR0-MDttaNTlzYMfzjhmC74OKcNIS4Q01qnqAOVKUvtcZke9u96rsw_C8Qr" alt="Cafe" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.4), transparent)' }}></div>
+                <div style={{ position: 'absolute', bottom: '1rem', left: '1rem' }}><Coffee color="white" /></div>
+             </div>
+             <h4 className="headline-sm" style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>Cafe Date</h4>
+             <p className="on-surface-variant" style={{ fontSize: '0.85rem', marginBottom: '1.5rem' }}>Pastries and gossip to fix the soul.</p>
+             <button style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                Let's Go <ArrowRight size={14} />
+             </button>
           </div>
-          <p className="on-surface-variant" style={{ fontSize: '0.9rem' }}>Unwind together with low-stress interactive challenges.</p>
-          <div className="card" style={{ border: '1px solid var(--secondary)', background: 'transparent' }}>
-            <p style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--secondary)' }}>Weekly Challenge: Pastel Garden</p>
-            <p style={{ fontSize: '0.8rem', marginTop: '0.2rem' }}>{bestieName} is waiting for your move!</p>
+
+          {/* Bowling Date */}
+          <div className="card group" style={{ background: 'var(--surface-container-lowest)', padding: '1.5rem', transition: 'transform 0.3s ease' }}>
+             <div style={{ height: '240px', borderRadius: '1rem', overflow: 'hidden', marginBottom: '1.5rem', position: 'relative' }}>
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCEpTbKk1ejSfieQxXytaNMmzHP-X5292-fu2CzoZS2UHOfSk4cC_BuuUICimTDDNvyXJI4ZZ7Ne4k_Eq5j6o3WjMXTD_mGTH439-u05b5Js-Vq6LqyMSu3hWKCVLJ2FK3MzZDBDC4fubP_B0Dkj0zRqSwU0iUWq3sQlE5h1AspHLB8SGHLex36IWRFnVDzVJJEeHTnPZkeniqursJxRjnaiMoYS9tq8zRiOAwpeUhAgLYh0FOidvTEKfSlZiryNhXRdMKitE9jrRY6" alt="Bowling" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.4), transparent)' }}></div>
+                <div style={{ position: 'absolute', bottom: '1rem', left: '1rem' }}><Trophy color="white" /></div>
+             </div>
+             <h4 className="headline-sm" style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>Bowling Date</h4>
+             <p className="on-surface-variant" style={{ fontSize: '0.85rem', marginBottom: '1.5rem' }}>Strike away the bad feelings.</p>
+             <button style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                Let's Go <ArrowRight size={14} />
+             </button>
           </div>
-          <button className="btn-primary" style={{ width: '100%', background: 'var(--secondary)' }}>Start Game</button>
+
+          {/* Maggie Date */}
+          <div className="card group" style={{ background: 'var(--surface-container-lowest)', padding: '1.5rem', transition: 'transform 0.3s ease' }}>
+             <div style={{ height: '240px', borderRadius: '1rem', overflow: 'hidden', marginBottom: '1.5rem', position: 'relative' }}>
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKeFE5umib--Qjs9s3gf6vHzKfd2h2jggh1PotIXHlVSsLMcVNenQWI0ClJAHXCaGdocFQQs8VUVo_J8HRNUyNkWZ1cQgvIHS1UCtOG8jBJ1TGFO1qR4YKCYLlai0h_Y9gYj_deWvJ6jKgyQzsWKJWnhGiHGLKZznceigG4P5agtV0y9_6GP6BdrGQoEahMnku-0pq8mgzvQxxXl3sUSYrU-XrsxWl_Z16Dy6Az-QBydPsaeuxkaPBcIygVEAXF90vWIw4DdOSChLP" alt="Maggie" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.4), transparent)' }}></div>
+                <div style={{ position: 'absolute', bottom: '1rem', left: '1rem' }}><Cat color="white" /></div>
+             </div>
+             <h4 className="headline-sm" style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>Maggie Date</h4>
+             <p className="on-surface-variant" style={{ fontSize: '0.85rem', marginBottom: '1.5rem' }}>Cuddles with the world's best cat.</p>
+             <button style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                Let's Go <ArrowRight size={14} />
+             </button>
+          </div>
+
+          {/* Game Date */}
+          <div className="card group" style={{ background: 'var(--surface-container-lowest)', padding: '1.5rem', transition: 'transform 0.3s ease' }}>
+             <div style={{ height: '240px', borderRadius: '1rem', overflow: 'hidden', marginBottom: '1.5rem', position: 'relative' }}>
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrPG33cyexoek0ks75whrlnfbtzLPi_sWnQuxxMOWI32RIfQSdAcO1RbQrjIFflZDtxDYYm1kVW3PxZEVjMX_Z3yjUwTxBzuNr9vDPgq9AoSjpHUFPY19HXkN-tarHDoYthhPkdjpLUYnpyEyv1v6-XyK4HthpZC46TI-qBa3lEz1xzI9tBgENJXt6klitLTPOsE96X-eH9epSx58D40EE6Z5gIXY5nJQRUtKCNAFp6eUNSLuGdC55-Apkqzpld7-uikvNx3Fk9FC3" alt="Game" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.4), transparent)' }}></div>
+                <div style={{ position: 'absolute', bottom: '1rem', left: '1rem' }}><Gamepad2 color="white" /></div>
+             </div>
+             <h4 className="headline-sm" style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>Game Date</h4>
+             <p className="on-surface-variant" style={{ fontSize: '0.85rem', marginBottom: '1.5rem' }}>Play cute mini-games and level up.</p>
+             <button style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                Let's Play <ArrowRight size={14} />
+             </button>
+          </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

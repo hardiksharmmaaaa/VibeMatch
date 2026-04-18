@@ -33,7 +33,9 @@ const UserSchema = new mongoose.Schema({
     date: { type: Date, default: Date.now },
     score: Number
   }],
-  latestRating: { type: Number, default: null }
+  latestRating: { type: Number, default: null },
+  phone: { type: String, default: '+91 ' },
+  bio: { type: String, default: 'Just a vibe check bestie 🌸' }
 });
 const User = mongoose.model('User', UserSchema);
 
@@ -59,7 +61,7 @@ app.post('/api/auth/login', async (req, res) => {
 
     res.status(200).json({ 
       message: 'Login successful', 
-      user: { username: user.username, email: user.email, friends: user.friends, checkIns: user.checkIns, latestRating: user.latestRating } 
+      user: { username: user.username, email: user.email, friends: user.friends, checkIns: user.checkIns, latestRating: user.latestRating, phone: user.phone, bio: user.bio } 
     });
   } catch (error) {
     res.status(500).json({ error: 'Error logging in' });
@@ -89,7 +91,7 @@ app.post('/api/auth/google', async (req, res) => {
 
     res.status(200).json({ 
       message: 'Google login successful', 
-      user: { username: user.username, email: user.email, friends: user.friends, checkIns: user.checkIns, latestRating: user.latestRating } 
+      user: { username: user.username, email: user.email, friends: user.friends, checkIns: user.checkIns, latestRating: user.latestRating, phone: user.phone, bio: user.bio } 
     });
   } catch (error) {
     console.error('Google Auth Error:', error);
@@ -102,7 +104,7 @@ app.get('/api/user/:email', async (req, res) => {
   try {
     const user = await User.findOne({ email: req.params.email });
     if (!user) return res.status(404).json({ error: 'User not found' });
-    res.status(200).json({ user: { username: user.username, email: user.email, friends: user.friends, checkIns: user.checkIns, latestRating: user.latestRating } });
+    res.status(200).json({ user: { username: user.username, email: user.email, friends: user.friends, checkIns: user.checkIns, latestRating: user.latestRating, phone: user.phone, bio: user.bio } });
   } catch (error) {
     res.status(500).json({ error: 'Error fetching user data' });
   }
@@ -247,6 +249,21 @@ app.get('/api/accept', async (req, res) => {
     `);
   } catch (err) {
     res.status(500).send('Error linking accounts');
+  }
+});
+
+app.post('/api/user/:email/update', async (req, res) => {
+  try {
+    const { username, phone, bio } = req.body;
+    const user = await User.findOneAndUpdate(
+       { email: req.params.email }, 
+       { username, phone, bio }, 
+       { new: true }
+    );
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.status(200).json({ message: 'Profile updated successfully', user: { username: user.username, email: user.email, friends: user.friends, checkIns: user.checkIns, latestRating: user.latestRating, phone: user.phone, bio: user.bio } });
+  } catch (error) {
+    res.status(500).json({ error: 'Error updating profile' });
   }
 });
 

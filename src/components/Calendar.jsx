@@ -8,52 +8,97 @@ export default function Calendar({ currentUser }) {
     checkInMap[dString] = c.score;
   });
 
-  const totalCells = 7 * 20; // Show roughly last 5 months for better responsiveness on mobile
+  const startDate = new Date(2026, 2, 1);
+  const today = new Date();
+  
+  // Create an array of days from March 1st to today
+  const days = [];
+  let current = new Date(startDate);
+  while (current <= today) {
+    days.push(new Date(current));
+    current.setDate(current.getDate() + 1);
+  }
+
+  const getVibeColor = (score) => {
+    if (score === undefined) return 'var(--surface-container-highest)';
+    if (score < 5) return 'var(--primary-container)';
+    if (score < 8) return 'var(--secondary-container)';
+    return 'var(--primary)';
+  };
 
   return (
-    <div className="calendar-wrapper" style={{ marginTop: '1rem' }}>
+    <div className="calendar-wrapper" style={{ marginTop: '0.5rem' }}>
       <div className="calendar-header flex-between" style={{ marginBottom: '1.5rem' }}>
-        <h3 className="headline-sm">Friendship Heatmap</h3>
-        <span className="label-sm" style={{ opacity: 0.6 }}>Yearly Sync</span>
+        <h3 className="label-sm" style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.7rem' }}>Vibe Trail • Since March</h3>
+        <div className="flex-center gap-4" style={{ fontSize: '0.65rem', fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>
+          <div className="flex-center gap-1">
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--primary-container)' }} />
+            <span>Low</span>
+          </div>
+          <div className="flex-center gap-1">
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--primary)' }} />
+            <span>High</span>
+          </div>
+        </div>
       </div>
-      <div className="calendar-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(14px, 1fr))', gap: '4px' }}>
-        {Array.from({ length: totalCells }).map((_, i) => {
-          const daysAgo = (totalCells - 1) - i;
-          const d = new Date();
-          d.setDate(d.getDate() - daysAgo);
+      
+      <div 
+        className="vibe-trail-container" 
+        style={{ 
+          display: 'flex', 
+          gap: '12px', 
+          overflowX: 'auto', 
+          padding: '1rem 0.5rem 1.5rem',
+          scrollSnapType: 'x mandatory',
+          maskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)'
+        }}
+      >
+        {days.map((d, i) => {
           const dString = d.toDateString();
-          
-          let bgColor = 'var(--surface-high)';
           const score = checkInMap[dString];
-          if (score !== undefined) {
-             if (score < 5) bgColor = 'var(--primary-container)';
-             else if (score < 8) bgColor = 'var(--secondary-container)';
-             else bgColor = 'var(--primary)';
-          }
-          
+          const color = getVibeColor(score);
+          const isToday = dString === today.toDateString();
+          const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+          const dayNum = d.getDate();
+
           return (
             <div 
-              key={i} 
-              className="calendar-day" 
-              title={score !== undefined ? `Score: ${score.toFixed(1)} on ${dString}` : dString}
+              key={i}
               style={{ 
-                aspectRatio: '1', 
-                borderRadius: '4px', 
-                background: bgColor,
-                transition: 'var(--transition-smooth)',
-                cursor: 'pointer'
+                flex: '0 0 auto', 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'center', 
+                gap: '0.8rem',
+                scrollSnapAlign: 'start'
               }}
             >
+              <div 
+                title={`${dString}: ${score ? score.toFixed(1) : 'No data'}`}
+                style={{ 
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  background: color,
+                  position: 'relative',
+                  boxShadow: score ? `0 0 15px ${color}66` : 'none',
+                  border: isToday ? '2px solid white' : '2px solid transparent',
+                  transition: 'var(--transition-smooth)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                {isToday && <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'white' }} />}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: 0.8 }}>
+                <span style={{ fontSize: '0.6rem', fontWeight: 800, color: 'white' }}>{dayName}</span>
+                <span style={{ fontSize: '0.7rem', fontWeight: 500, color: 'white' }}>{dayNum}</span>
+              </div>
             </div>
           );
         })}
-      </div>
-      <div className="flex-center gap-2" style={{ marginTop: '1.5rem', fontSize: '0.75rem', color: 'var(--on-surface-variant)' }}>
-        <span>Needs Love</span>
-        <div style={{width: '10px', height: '10px', borderRadius: '2px', background: 'var(--primary-container)'}}></div>
-        <div style={{width: '10px', height: '10px', borderRadius: '2px', background: 'var(--secondary-container)'}}></div>
-        <div style={{width: '10px', height: '10px', borderRadius: '2px', background: 'var(--primary)'}}></div>
-        <span>High Vibe</span>
       </div>
     </div>
   );
